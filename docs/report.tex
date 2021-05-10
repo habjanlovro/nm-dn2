@@ -1,0 +1,49 @@
+% !TeX spellcheck = en_US
+\documentclass[]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+\usepackage{listingsutf8}
+\lstset{literate={č}{{\v c}}1 {š}{{\v s}}1 {ž}{{\v z}}1}
+\lstset{basicstyle=\ttfamily, language=matlab}
+
+
+\title{Homework 2}
+\author{Lovro Habjan}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Introduction}
+
+For homework 2 we implemented two ways of computing \textit{B\'ezier curves} - directly and with the De Casteljans algorithm. We are given a set of points $b_i, i = 0, 1, 2, ..., n$ in the plane $\mathbb{R}^2$.
+
+
+\section{Methods}
+
+With $b_i$,  $i = 0, 1, 2, ..., n$ (control points), the method to directly compute the B\'ezier algorithm is:
+\begin{equation*}
+	\textbf{b}(t) = \sum_{i = 0}^{n} b_i B^n_i (t), B^n_i(t) = \binom{n}{i} t^i (1-t)^{n-i}, t \in [0, 1]
+\end{equation*}
+
+De Casteljans algorithm is defined recursively:
+\begin{align*}
+	\textbf{b}^0_i(t_0) &= b_i \\
+	\textbf{b}^r_i(t_0) &= (1 - t_0) \textbf{b}^{r-1}_i(t_0) + t_0 \textbf{b}^{r-1}_{i+1}
+\end{align*}
+
+\section{Results}
+
+\end{document}
+
