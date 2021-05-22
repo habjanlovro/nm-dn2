@@ -49,11 +49,16 @@ function v = computeDirectly(b, t)
     v = [0, 0];
     [nPlusOne, ~] = size(b);
     for i = 1:nPlusOne
-        v = v + nchoosek(nPlusOne-1, i-1) * t^(i-1) * ...
+        v = v + binomialGamma(nPlusOne-1, i-1) * t^(i-1) * ...
             (1-t)^(nPlusOne-i) * b(i,:);
     end
 end
 \end{lstlisting}
+
+Where we computer the binomial as:
+\begin{equation*}
+	\binom{n}{k} = \frac{\Gamma(n+1)}{\Gamma(k+1) \Gamma(n-k+1)}
+\end{equation*}
 
 \subsection{De Casteljans algorithm}
 
@@ -65,12 +70,12 @@ De Casteljans algorithm is defined recursively:
 The naive implementation of this algorithm is of exponential complexity, as we
 compute the same $\textbf{b}_i^r$ multiple times. We can achieve a better time
 complexity, as we observe that to compute $\textbf{b}_r^i$ we only need
-$\textbf{b}_{r-1}^i$ for all $i = 0, 1, ..., n - r$. Because $\textbf{b}_i^0 =
-b_i$, we can start with $r = 0$ and compute $\textbf{b}_i^r$ for every $r = 1,
-2, ..., n$. Element $\textbf{b}^r_i$ only needs elements $\textbf{b}^{r-1}_i$
-and $\textbf{b}^{r-1}_{i+1}$, we can modify the matrix in-place. The final
-result is stored in $\textbf{b}^n_0$. The code in MATLAB for the algorithm,
-where indexes are adjusted:
+$\textbf{b}_{r-1}^i$ for all $i = 0, 1, ..., n - r$. Because
+$\textbf{b}_i^0 = b_i$, we can start with $r = 0$ and compute $\textbf{b}_i^r$
+for every $r = 1, 2, ..., n$. Element $\textbf{b}^r_i$ only needs elements
+$\textbf{b}^{r-1}_i$ and $\textbf{b}^{r-1}_{i+1}$, we can modify the matrix
+in-place. The final result is stored in $\textbf{b}^n_0$. The code in MATLAB for
+the algorithm, where indexes are adjusted:
 
 \begin{lstlisting}
 function v = deCastiljas(b, t)
@@ -86,12 +91,12 @@ end
 
 \section{Results}
 
-We tested the algorithms on 5 different test cases. First two were small,
-containing 4 different points. The third test case had 10 randomly selected
-points with larger coordinates. The fourth test case had 100 control points, and
-fifth had 10 control points with larger coordinates $x, y \in [1000, 10000]$. We
-measured the difference between the results of both algorithms for values $t \in
-[0, 1]$ with 0.01 increment. We used the following norms:
+We tested the algorithms on 4 different test cases. First two were small,
+containing 4 different points. The third test case had 100 randomly selected
+control points with larger coordinates and the fifth had 10 control points with
+larger coordinates $x, y \in [1000, 10000]$. We measured the difference between
+the results of both algorithms for values $t \in [0, 1]$ with 0.01 increment. We
+used the following norms:
 \begin{itemize}
 	\item Euclid norm: $\lvert \lvert x \rvert \rvert_2 = \sqrt{\sum_{i = 1}^{n}
 x_i^2}$
@@ -101,55 +106,71 @@ x_i^2}$
 x_i \rvert$
 \end{itemize}
 
-Figures \ref{fig:01} and \ref{fig:02} show the small test cases and we see, that
-the difference between results is small (order of $10^{-16}$). Figure
-\ref{fig:03} shows the results for test case 3, where the order of difference is
-$10^{-13}$. This shows that algorithms lose accuracy with larger
-numbers. Results for test case 4 are shown in figure \ref{fig:04}. We see that
-the number of control points does not have a big effect on the order of
-difference. Figure \ref{fig:05} shows the biggest order of difference
-($10^{-11}$) for test case 5, where we used larger numbers than in previous test
-cases. This is possibly due to the need to calculate the binomial coefficient in
-the direct algorithm, as the numbers can get quite big. The function call
-\verb|nchoosek(n, k)|, which computes the coefficient, raised many warnings that
-the result is not exact because of the size of the coefficient.
-
-The De Casteljans algorithm does not have this problem and is therefore more
-numerically stable, giving better results than the direct algorithm.
+Figure~\ref{fig:01-curve} and~\ref{fig:02-curve} show the small test cases. The
+difference between results are shown in~\ref{fig:01-diffs}
+and~\ref{fig:02-diffs}. We see that the difference between results is small
+(order of $10^{-16}$). Figure~\ref{fig:03-curve} shows the curve for test case
+3, with the differences shown in figure~\ref{fig:03-diffs}. We see that the
+order of difference is $10^{-13}$. This shows that algorithms lose accuracy with
+larger numbers. The curve for test case 4 is shown in
+figure~\ref{fig:04-curve}. The differences are shown in
+figure~\ref{fig:04-diffs}. We see the biggest order of difference ($10^{-11}$)
+for test case 4, where we used larger numbers than in previous test cases.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\linewidth]{figs/test01.png}
+  \includegraphics[width=0.8\linewidth]{figs/01-curve.png}
+  \caption{Curve for test 1}
+  \label{fig:01-curve}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\linewidth]{figs/01-diffs.png}
   \caption{Comparison of algorithms for test 1}
-  \label{fig:01}
+  \label{fig:01-diffs}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\linewidth]{figs/test02.png}
+  \includegraphics[width=0.8\linewidth]{figs/02-curve.png}
+  \caption{Curve for test 2}
+  \label{fig:02-curve}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\linewidth]{figs/02-diffs.png}
   \caption{Comparison of algorithms for test 2}
-  \label{fig:02}
+  \label{fig:02-diffs}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\linewidth]{figs/test03.png}
-  \caption{Comparison of algorithms for test 3}
-  \label{fig:03}
+  \includegraphics[width=0.8\linewidth]{figs/03-curve.png}
+  \caption{Curve for test 3}
+  \label{fig:03-curve}
 \end{figure}
 
 \begin{figure}
-  \centering
-  \includegraphics[width=0.8\linewidth]{figs/test04.png}
-  \caption{Comparison of algorithms for test 4}
-  \label{fig:04}
+	\centering
+	\includegraphics[width=0.8\linewidth]{figs/03-diffs.png}
+	\caption{Comparison of algorithms for test 3}
+	\label{fig:03-diffs}
 \end{figure}
 
 \begin{figure}
-  \centering
-  \includegraphics[width=0.8\linewidth]{figs/test05.png}
-  \caption{Comparison of algorithms for test 5}
-  \label{fig:05}
+	\centering
+	\includegraphics[width=0.8\linewidth]{figs/04-curve.png}
+	\caption{Curve for test 4}
+	\label{fig:04-curve}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{figs/04-diffs.png}
+	\caption{Comparison of algorithms for test 4}
+	\label{fig:04-diffs}
 \end{figure}
 
 \end{document}

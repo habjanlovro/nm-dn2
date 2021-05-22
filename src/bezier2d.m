@@ -20,8 +20,12 @@ function v = computeDirectly(b, t)
     v = [0, 0];
     [nPlusOne, ~] = size(b);
     for i = 1 : nPlusOne
-        v = v + nchoosek(nPlusOne-1, i-1) * t^(i-1) * (1 - t)^(nPlusOne - i) * b(i, :);
+        v = v + binomialGamma(nPlusOne-1, i-1) * t^(i-1) * (1 - t)^(nPlusOne - i) * b(i, :);
     end
+end
+
+function b = binomialGamma(n, k)
+    b = gamma(n+1) / (gamma(k+1) * gamma(n-k+1));
 end
 
 function v = deCastiljas(b, t)
